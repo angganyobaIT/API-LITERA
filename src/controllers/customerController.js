@@ -21,6 +21,7 @@ async (req, res) => {
                     c.id,
                     c.user_id,
                     c.name,
+                    c.points,
 
                     u.username,
                     u.email,
@@ -75,6 +76,7 @@ async (req, res) => {
                     c.id,
                     c.user_id,
                     c.name,
+                    c.points,
 
                     u.username,
                     u.email,
