@@ -7,6 +7,11 @@ const router =
 const verifyToken =
     require("../middleware/auth");
 
+const upload =
+    require(
+        "../middleware/uploadMiddleware"
+    );
+
 router.use(verifyToken);
 
 const {
@@ -15,15 +20,9 @@ const {
     updateUser,
     deleteUser,
     restoreUser,
-    uploadProfilePicture,
 } = require(
     "../controllers/userController"
 );
-
-const upload =
-    require(
-        "../middleware/uploadMiddleware"
-    );
 
 // GET ALL USERS
 router.get(
@@ -37,10 +36,19 @@ router.get(
     getUserById
 );
 
-// UPDATE USER
+// UPDATE USER (ADMIN)
 router.put(
     "/:id",
     updateUser
+);
+
+// UPDATE PROFILE + FOTO
+router.put(
+    "/profile/:id",
+    upload.single(
+        "profile_picture"
+    ),
+    updateProfile
 );
 
 // DELETE USER
@@ -55,12 +63,6 @@ router.put(
     restoreUser
 );
 
-// UPLOAD PROFILE PICTURE
-router.put(
-    "/upload-profile/:id",
-    upload.single("profile_picture"),
-    uploadProfilePicture
-);
 
 /**
  * @swagger
@@ -101,12 +103,11 @@ router.put(
  *                         type: string
  */
 
-
 /**
  * @swagger
- * /api/users/{id}:
- *   get:
- *     summary: Mengambil detail user berdasarkan id
+ * /api/users/profile/{id}:
+ *   put:
+ *     summary: Update profile customer/merchant dan foto profile
  *     tags: [Users]
  *     parameters:
  *       - in: path
@@ -115,35 +116,31 @@ router.put(
  *         schema:
  *           type: integer
  *         description: ID user
+ *     requestBody:
+ *       required: false
+ *       content:
+ *         multipart/form-data:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               name:
+ *                 type: string
+ *                 description: Nama customer
+ *               nama_bisnis:
+ *                 type: string
+ *                 description: Nama bisnis merchant
+ *               deskripsi:
+ *                 type: string
+ *                 description: Deskripsi merchant
+ *               tahun_berdiri:
+ *                 type: integer
+ *                 description: Tahun berdiri merchant
+ *               profile_picture:
+ *                 type: string
+ *                 format: binary
  *     responses:
  *       200:
- *         description: Berhasil mengambil detail user
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 success:
- *                   type: boolean
- *                 message:
- *                   type: string
- *                 data:
- *                   type: object
- *                   properties:
- *                     id:
- *                       type: integer
- *                     username:
- *                       type: string
- *                     name:
- *                       type: string
- *                     email:
- *                       type: string
- *                     role:
- *                       type: integer
- *                     is_active:
- *                        type: boolean
- *                     created_at:
- *                       type: string
+ *         description: Profile berhasil diupdate
  */
 
 /**
@@ -213,33 +210,6 @@ router.put(
  *     responses:
  *       200:
  *         description: User berhasil diaktifkan kembali
- */
-
-/**
- * @swagger
- * /api/users/upload-profile/{id}:
- *   put:
- *     summary: Upload foto profile user
- *     tags: [Users]
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: integer
- *     requestBody:
- *       required: true
- *       content:
- *         multipart/form-data:
- *           schema:
- *             type: object
- *             properties:
- *               profile_picture:
- *                 type: string
- *                 format: binary
- *     responses:
- *       200:
- *         description: Foto profile berhasil diupload
  */
 
 module.exports = router;

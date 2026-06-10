@@ -271,14 +271,13 @@ const updateUser = async (
     }
 };
 
-const updateProfile = async (
-    req,
-    res
-) => {
+const updateProfile = async (req, res) => {
 
     try {
 
         const { id } = req.params;
+
+        const { name } = req.body;
 
         const userCheck =
             await pool.query(
@@ -290,9 +289,7 @@ const updateProfile = async (
                 [id]
             );
 
-        if (
-            userCheck.rows.length === 0
-        ) {
+        if (userCheck.rows.length === 0) {
 
             return errorResponse(
                 res,
@@ -303,19 +300,62 @@ const updateProfile = async (
         const user =
             userCheck.rows[0];
 
-        // CUSTOMER
-        if (user.role === 2) {
+        let profilePicture =
+            user.profile_picture;
 
-            const { name } =
-                req.body;
+        // upload foto jika ada
+        if (req.file) {
 
-            if (!name) {
+            const result =
+                await new Promise(
+                    (resolve, reject) => {
 
-                return errorResponse(
-                    res,
-                    "Nama wajib diisi"
+                        const stream =
+                            cloudinary.uploader.upload_stream(
+                                {
+                                    folder:
+                                        "profile_picture",
+                                },
+                                (error, result) => {
+
+                                    if (error)
+                                        reject(error);
+
+                                    else
+                                        resolve(result);
+                                }
+                            );
+
+                        streamifier
+                            .createReadStream(
+                                req.file.buffer
+                            )
+                            .pipe(stream);
+                    }
                 );
-            }
+
+            profilePicture =
+                result.secure_url;
+        }
+
+        // update foto
+        await pool.query(
+            `
+            UPDATE users
+            SET profile_picture = $1
+            WHERE id = $2
+            `,
+            [
+                profilePicture,
+                id,
+            ]
+        );
+
+        // update nama customer
+        if (
+            user.role === 2 &&
+            name
+        ) {
 
             await pool.query(
                 `
@@ -332,48 +372,13 @@ const updateProfile = async (
             );
         }
 
-        // MERCHANT
-        else {
-
-            const {
-                nama_bisnis,
-                deskripsi,
-                tahun_berdiri,
-            } = req.body;
-
-            if (
-                !nama_bisnis ||
-                !deskripsi ||
-                !tahun_berdiri
-            ) {
-
-                return errorResponse(
-                    res,
-                    "Semua field wajib diisi"
-                );
-            }
-
-            await pool.query(
-                `
-                UPDATE merchants
-                SET
-                    nama_bisnis = $1,
-                    deskripsi = $2,
-                    tahun_berdiri = $3
-                WHERE user_id = $4
-                `,
-                [
-                    nama_bisnis,
-                    deskripsi,
-                    tahun_berdiri,
-                    id,
-                ]
-            );
-        }
-
         return successResponse(
             res,
-            "Profile berhasil diupdate"
+            "Profile berhasil diupdate",
+            {
+                profile_picture:
+                    profilePicture,
+            }
         );
 
     } catch (error) {
@@ -502,90 +507,6 @@ const restoreUser = async (
 };
 
 
-// UPLOAD PROFILE PICTURE
-const uploadProfilePicture =
-    async (req, res) => {
-
-    try {
-
-        const { id } = req.params;
-
-        // cek file
-        if (!req.file) {
-
-            return errorResponse(
-                res,
-                "File wajib diupload"
-            );
-        }
-
-        // upload cloudinary
-        const result =
-            await new Promise(
-                (resolve, reject) => {
-
-                    const stream =
-                        cloudinary.uploader.upload_stream(
-
-                            {
-                                folder:
-                                    "profile_picture",
-                            },
-
-                            (
-                                error,
-                                result
-                            ) => {
-
-                                if (error)
-                                    reject(error);
-
-                                else
-                                    resolve(result);
-                            }
-                        );
-
-                    streamifier
-                        .createReadStream(
-                            req.file.buffer
-                        )
-                        .pipe(stream);
-                }
-            );
-
-        // simpan url ke database
-        await pool.query(
-            `
-            UPDATE users
-            SET profile_picture = $1
-            WHERE id = $2
-            `,
-            [
-                result.secure_url,
-                id,
-            ]
-        );
-
-        return successResponse(
-            res,
-            "Foto profile berhasil diupload",
-            {
-                profile_picture:
-                    result.secure_url,
-            }
-        );
-
-    } catch (error) {
-
-        console.log(error);
-
-        return errorResponse(
-            res,
-            error.message
-        );
-    }
-};
-
 module.exports = {
     getAllUsers,
     getUserById,
@@ -593,5 +514,4 @@ module.exports = {
     updateUser,
     deleteUser,
     restoreUser,
-    uploadProfilePicture,
 };
