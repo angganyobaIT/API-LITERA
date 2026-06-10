@@ -1,8 +1,7 @@
 const pool = require("../config/db");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
-const transporter =
-    require("../config/mail");
+const axios = require("axios");
 
 const {
     successResponse,
@@ -263,7 +262,6 @@ const login = async (req, res) => {
 };
 
 // SEND OTP RESET PASSWORD
-// SEND OTP RESET PASSWORD
 const sendResetOtp = async (
     req,
     res
@@ -363,38 +361,37 @@ const sendResetOtp = async (
         );
 
         console.log(
-            "BREVO USER:",
-            process.env.BREVO_USER
-        );
-
-        console.log(
             "MAIL FROM:",
             process.env.MAIL_FROM
         );
 
         console.log(
-            "MULAI SEND EMAIL"
+            "MULAI SEND EMAIL VIA BREVO API"
         );
 
-        console.log(
-            "KIRIM KE:",
-            email
-        );
+        const response =
+            await axios.post(
+                "https://api.brevo.com/v3/smtp/email",
+                {
+                    sender: {
+                        name:
+                            "Litera Support",
 
-        const info =
-            await Promise.race([
+                        email:
+                            process.env.MAIL_FROM,
+                    },
 
-                transporter.sendMail({
-
-                    from:
-                        `"Litera Support" <${process.env.MAIL_FROM}>`,
-
-                    to: email,
+                    to: [
+                        {
+                            email:
+                                email,
+                        },
+                    ],
 
                     subject:
                         "Reset Password OTP",
 
-                    html: `
+                    htmlContent: `
                         <div style="font-family: Arial, sans-serif">
 
                             <h2>
@@ -429,34 +426,28 @@ const sendResetOtp = async (
 
                         </div>
                     `,
-                }),
+                },
+                {
+                    headers: {
+                        "api-key":
+                            process.env.BREVO_API_KEY,
 
-                new Promise(
-                    (_, reject) =>
-                        setTimeout(
-                            () =>
-                                reject(
-                                    new Error(
-                                        "SMTP SEND TIMEOUT (15 detik)"
-                                    )
-                                ),
-                            15000
-                        )
-                )
-            ]);
+                        "Content-Type":
+                            "application/json",
+                    },
+                }
+            );
 
         console.log(
             "EMAIL BERHASIL DIKIRIM"
         );
 
         console.log(
-            "MESSAGE ID:",
-            info.messageId
+            "BREVO RESPONSE:"
         );
 
         console.log(
-            "RESPONSE:",
-            info.response
+            response.data
         );
 
         console.log(
@@ -478,7 +469,20 @@ const sendResetOtp = async (
             "ERROR OTP"
         );
 
-        console.log(error);
+        if (
+            error.response
+        ) {
+
+            console.log(
+                error.response.data
+            );
+
+        } else {
+
+            console.log(
+                error.message
+            );
+        }
 
         console.log(
             "================================"
@@ -486,6 +490,7 @@ const sendResetOtp = async (
 
         return errorResponse(
             res,
+            error.response?.data?.message ||
             error.message
         );
     }
