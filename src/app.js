@@ -63,6 +63,8 @@ const categoryProductRoutes =
     require(
         "./routes/categoryProductRoutes"
     );
+const transporter =
+    require("./config/mail");
 
 app.use(cors());
 
