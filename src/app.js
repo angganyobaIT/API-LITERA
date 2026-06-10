@@ -1,6 +1,6 @@
 const dns =
     require("dns");
-
+    
 dns.setDefaultResultOrder(
     "ipv4first"
 );
@@ -157,6 +157,27 @@ app.get("/smtp-test", async (req, res) => {
             process.env.MAIL_FROM
     });
 
+});
+
+app.get("/dns-test", async (req, res) => {
+
+    dns.lookup(
+        "smtp-relay.brevo.com",
+        (err, address) => {
+
+            if (err) {
+                return res.json({
+                    success: false,
+                    error: err.message
+                });
+            }
+
+            return res.json({
+                success: true,
+                address
+            });
+        }
+    );
 });
 
 app.get("/smtp-send-test", async (req, res) => {
