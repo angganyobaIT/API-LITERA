@@ -18,6 +18,7 @@ const {
     getAllUsers,
     getUserById,
     updateUser,
+    updateProfile,
     deleteUser,
     restoreUser,
 } = require(
@@ -63,7 +64,6 @@ router.put(
     restoreUser
 );
 
-
 /**
  * @swagger
  * /api/users:
@@ -73,34 +73,53 @@ router.put(
  *     responses:
  *       200:
  *         description: Berhasil mengambil data user
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 success:
- *                   type: boolean
- *                 message:
- *                   type: string
- *                 data:
- *                   type: array
- *                   items:
- *                     type: object
- *                     properties:
- *                       id:
- *                         type: integer
- *                       username:
- *                         type: string
- *                       name:
- *                         type: string
- *                       email:
- *                         type: string
- *                       role:
- *                         type: integer
- *                       is_active:
- *                         type: boolean
- *                       created_at:
- *                         type: string
+ */
+
+/**
+ * @swagger
+ * /api/users/{id}:
+ *   get:
+ *     summary: Mengambil detail user berdasarkan id
+ *     tags: [Users]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       200:
+ *         description: Berhasil mengambil detail user
+ */
+
+/**
+ * @swagger
+ * /api/users/{id}:
+ *   put:
+ *     summary: Update data user (Admin)
+ *     tags: [Users]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               username:
+ *                 type: string
+ *               email:
+ *                 type: string
+ *               role:
+ *                 type: integer
+ *     responses:
+ *       200:
+ *         description: User berhasil diupdate
  */
 
 /**
@@ -115,7 +134,6 @@ router.put(
  *         required: true
  *         schema:
  *           type: integer
- *         description: ID user
  *     requestBody:
  *       required: false
  *       content:
@@ -146,39 +164,6 @@ router.put(
 /**
  * @swagger
  * /api/users/{id}:
- *   put:
- *     summary: Update profile user
- *     tags: [Users]
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: integer
- *         description: ID user
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               username:
- *                 type: string
- *               name:
- *                 type: string
- *               email:
- *                 type: string
- *               role:
- *                 type: integer
- *     responses:
- *       200:
- *         description: Profile berhasil diupdate
- */
-
-/**
- * @swagger
- * /api/users/{id}:
  *   delete:
  *     summary: Soft delete user
  *     tags: [Users]
@@ -188,7 +173,6 @@ router.put(
  *         required: true
  *         schema:
  *           type: integer
- *         description: ID user
  *     responses:
  *       200:
  *         description: User berhasil dihapus
@@ -206,7 +190,6 @@ router.put(
  *         required: true
  *         schema:
  *           type: integer
- *         description: ID user
  *     responses:
  *       200:
  *         description: User berhasil diaktifkan kembali
