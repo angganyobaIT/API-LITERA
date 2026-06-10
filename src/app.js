@@ -159,6 +159,60 @@ app.get("/smtp-test", async (req, res) => {
 
 });
 
+app.get("/smtp-send-test", async (req, res) => {
+
+    try {
+
+        const info =
+            await Promise.race([
+
+                transporter.sendMail({
+
+                    from:
+                        `"PBM Test" <${process.env.MAIL_FROM}>`,
+
+                    to:
+                        process.env.MAIL_FROM,
+
+                    subject:
+                        "SMTP TEST",
+
+                    text:
+                        "Brevo SMTP berhasil"
+                }),
+
+                new Promise(
+                    (_, reject) =>
+                        setTimeout(
+                            () =>
+                                reject(
+                                    new Error(
+                                        "SEND TIMEOUT"
+                                    )
+                                ),
+                            15000
+                        )
+                )
+            ]);
+
+        return res.json({
+            success: true,
+            messageId:
+                info.messageId
+        });
+
+    } catch (err) {
+
+        console.error(err);
+
+        return res.json({
+            success: false,
+            error:
+                err.message
+        });
+    }
+});
+
 app.get("/", (req, res) => {
     res.status(200).json({
         success: true,
