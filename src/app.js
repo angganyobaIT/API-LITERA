@@ -163,52 +163,59 @@ app.get("/smtp-send-test", async (req, res) => {
 
     try {
 
+        console.log("START VERIFY");
+
+        const verifyResult =
+            await transporter.verify();
+
+        console.log(
+            "VERIFY RESULT:",
+            verifyResult
+        );
+
+        console.log(
+            "VERIFY SUCCESS"
+        );
+
         const info =
-            await Promise.race([
+            await transporter.sendMail({
 
-                transporter.sendMail({
+                from:
+                    `"PBM Test" <${process.env.MAIL_FROM}>`,
 
-                    from:
-                        `"PBM Test" <${process.env.MAIL_FROM}>`,
+                to:
+                    process.env.MAIL_FROM,
 
-                    to:
-                        process.env.MAIL_FROM,
+                subject:
+                    "SMTP TEST",
 
-                    subject:
-                        "SMTP TEST",
+                text:
+                    "Brevo SMTP berhasil"
+            });
 
-                    text:
-                        "Brevo SMTP berhasil"
-                }),
+        console.log(
+            "SEND SUCCESS"
+        );
 
-                new Promise(
-                    (_, reject) =>
-                        setTimeout(
-                            () =>
-                                reject(
-                                    new Error(
-                                        "SEND TIMEOUT"
-                                    )
-                                ),
-                            15000
-                        )
-                )
-            ]);
+        console.log(info);
 
         return res.json({
             success: true,
-            messageId:
-                info.messageId
+            messageId: info.messageId
         });
 
     } catch (err) {
+
+        console.error(
+            "SMTP ERROR:"
+        );
 
         console.error(err);
 
         return res.json({
             success: false,
-            error:
-                err.message
+            error: err.message,
+            code: err.code
         });
     }
 });
