@@ -145,6 +145,25 @@ app.use(
     categoryProductRoutes
 );
 
+app.get("/smtp-test", async (req, res) => {
+    try {
+
+        await transporter.verify();
+
+        return res.json({
+            success: true,
+            message: "SMTP OK"
+        });
+
+    } catch (err) {
+
+        return res.json({
+            success: false,
+            error: err.message
+        });
+    }
+});
+
 app.get("/", (req, res) => {
     res.status(200).json({
         success: true,
