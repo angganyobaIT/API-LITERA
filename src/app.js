@@ -149,53 +149,14 @@ app.use(
 
 app.get("/smtp-test", async (req, res) => {
 
-    console.log("===== SMTP TEST =====");
+    return res.json({
+        brevoUser: process.env.BREVO_USER,
+        smtpKeyExists:
+            !!process.env.BREVO_SMTP_KEY,
+        mailFrom:
+            process.env.MAIL_FROM
+    });
 
-    console.log(
-        "BREVO_USER:",
-        process.env.BREVO_USER
-    );
-
-    console.log(
-        "BREVO_SMTP_KEY EXISTS:",
-        !!process.env.BREVO_SMTP_KEY
-    );
-
-    try {
-
-        const result =
-            await Promise.race([
-
-                transporter.verify(),
-
-                new Promise(
-                    (_, reject) =>
-                        setTimeout(
-                            () =>
-                                reject(
-                                    new Error(
-                                        "VERIFY TIMEOUT 10 DETIK"
-                                    )
-                                ),
-                            10000
-                        )
-                ),
-            ]);
-
-        return res.json({
-            success: true,
-            result,
-        });
-
-    } catch (err) {
-
-        console.error(err);
-
-        return res.json({
-            success: false,
-            error: err.message,
-        });
-    }
 });
 
 app.get("/", (req, res) => {
