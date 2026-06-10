@@ -362,6 +362,16 @@ const sendResetOtp = async (
         );
 
         console.log(
+            "BREVO USER:",
+            process.env.BREVO_USER
+        );
+
+        console.log(
+            "MAIL FROM:",
+            process.env.MAIL_FROM
+        );
+
+        console.log(
             "MULAI VERIFY SMTP"
         );
 
@@ -381,7 +391,7 @@ const sendResetOtp = async (
                 transporter.sendMail({
 
                     from:
-                        `"PBM Authentication" <${process.env.EMAIL_USER}>`,
+                        `"Litera Support" <${process.env.MAIL_FROM}>`,
 
                     to: email,
 
@@ -389,22 +399,36 @@ const sendResetOtp = async (
                         "Reset Password OTP",
 
                     html: `
-                        <div style="font-family: Arial">
+                        <div style="font-family: Arial, sans-serif">
 
-                            <h2>Reset Password</h2>
+                            <h2>
+                                Reset Password
+                            </h2>
 
                             <p>
-                                Gunakan OTP berikut
-                                untuk reset password:
+                                Gunakan kode OTP berikut
+                                untuk melakukan reset password:
                             </p>
 
-                            <h1>
-                                ${otp}
-                            </h1>
+                            <div style="
+                                background:#f4f4f4;
+                                padding:20px;
+                                text-align:center;
+                                border-radius:8px;
+                            ">
+                                <h1>
+                                    ${otp}
+                                </h1>
+                            </div>
 
                             <p>
-                                OTP berlaku
-                                selama 5 menit
+                                OTP berlaku selama
+                                <b>5 menit</b>.
+                            </p>
+
+                            <p>
+                                Abaikan email ini jika
+                                Anda tidak meminta reset password.
                             </p>
 
                         </div>

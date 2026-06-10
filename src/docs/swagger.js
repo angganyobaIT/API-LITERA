@@ -22,10 +22,9 @@ const options = {
                 "API documentation PBM Litera",
         },
 
-        servers: [
+            servers: [
             {
-                url:
-                    "https://api-paaxpbm.onrender.com",
+                url: process.env.API_URL,
             },
         ],
 

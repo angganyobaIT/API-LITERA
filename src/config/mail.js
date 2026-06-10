@@ -1,18 +1,10 @@
-const dns =
-    require("dns");
-
-dns.setDefaultResultOrder(
-    "ipv4first"
-);
-
-
 const nodemailer =
     require("nodemailer");
 
 const transporter =
     nodemailer.createTransport({
 
-        host: "smtp.gmail.com",
+        host: "smtp-relay.brevo.com",
 
         port: 587,
 
@@ -21,13 +13,11 @@ const transporter =
         auth: {
 
             user:
-                process.env.EMAIL_USER,
+                process.env.BREVO_USER,
 
             pass:
-                process.env.EMAIL_PASS,
+                process.env.BREVO_SMTP_KEY,
         },
-
-        family: 4
     });
 
 module.exports =
