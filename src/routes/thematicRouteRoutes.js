@@ -222,9 +222,21 @@ router.post(
     createThematicRoute
 );
 
+router.post(
+    "/",
+    upload.single("image"),
+    createThematicRoute
+);
+
 // UPDATE THEMATIC ROUTE
 router.put(
     "/:id",
+    updateThematicRoute
+);
+
+router.put(
+    "/:id",
+    upload.single("image"),
     updateThematicRoute
 );
 
