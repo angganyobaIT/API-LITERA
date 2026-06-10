@@ -139,4 +139,12 @@ app.use(
     categoryProductRoutes
 );
 
+app.get("/", (req, res) => {
+    res.status(200).json({
+        success: true,
+        message: "PBM Litera API is running",
+        docs: "/api-docs"
+    });
+});
+
 module.exports = app;
