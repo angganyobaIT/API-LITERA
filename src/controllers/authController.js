@@ -263,6 +263,7 @@ const login = async (req, res) => {
 };
 
 // SEND OTP RESET PASSWORD
+// SEND OTP RESET PASSWORD
 const sendResetOtp = async (
     req,
     res
@@ -372,17 +373,12 @@ const sendResetOtp = async (
         );
 
         console.log(
-            "MULAI VERIFY SMTP"
-        );
-
-        await transporter.verify();
-
-        console.log(
-            "SMTP VERIFIED"
-        );
-
-        console.log(
             "MULAI SEND EMAIL"
+        );
+
+        console.log(
+            "KIRIM KE:",
+            email
         );
 
         const info =
@@ -441,10 +437,10 @@ const sendResetOtp = async (
                             () =>
                                 reject(
                                     new Error(
-                                        "SMTP Timeout (10 detik)"
+                                        "SMTP SEND TIMEOUT (15 detik)"
                                     )
                                 ),
-                            10000
+                            15000
                         )
                 )
             ]);
