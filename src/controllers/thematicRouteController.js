@@ -1,6 +1,13 @@
 const pool =
     require("../config/db");
 
+const cloudinary =
+    require("../config/cloudinary");
+
+const streamifier =
+    require("streamifier");
+
+
 const {
     successResponse,
     errorResponse,
@@ -19,6 +26,7 @@ const getAllThematicRoutes =
                     id,
                     judul_rute,
                     deskripsi,
+                    image_url,
                     is_delete,
                     created_at,
                     updated_at
@@ -59,6 +67,7 @@ const getThematicRouteById =
                     id,
                     judul_rute,
                     deskripsi,
+                    image_url,
                     is_delete,
                     created_at,
                     updated_at
@@ -98,7 +107,7 @@ const getThematicRouteById =
 
 // CREATE THEMATIC ROUTE
 const createThematicRoute =
-    async (req, res) => {
+async (req, res) => {
 
     try {
 
@@ -107,7 +116,6 @@ const createThematicRoute =
             deskripsi,
         } = req.body;
 
-        // validasi
         if (
             !judul_rute ||
             !deskripsi
@@ -119,18 +127,61 @@ const createThematicRoute =
             );
         }
 
-        // insert route
+        let imageUrl = null;
+
+        if (req.file) {
+
+            const result =
+                await new Promise(
+                    (
+                        resolve,
+                        reject
+                    ) => {
+
+                        const stream =
+                            cloudinary.uploader.upload_stream(
+                                {
+                                    folder:
+                                        "thematic_routes",
+                                },
+                                (
+                                    error,
+                                    result
+                                ) => {
+
+                                    if (error)
+                                        reject(error);
+
+                                    else
+                                        resolve(result);
+                                }
+                            );
+
+                        streamifier
+                            .createReadStream(
+                                req.file.buffer
+                            )
+                            .pipe(stream);
+                    }
+                );
+
+            imageUrl =
+                result.secure_url;
+        }
+
         await pool.query(
             `
             INSERT INTO thematic_routes (
                 judul_rute,
-                deskripsi
+                deskripsi,
+                image_url
             )
-            VALUES ($1, $2)
+            VALUES ($1, $2, $3)
             `,
             [
                 judul_rute,
                 deskripsi,
+                imageUrl,
             ]
         );
 
@@ -152,18 +203,18 @@ const createThematicRoute =
 
 // UPDATE THEMATIC ROUTE
 const updateThematicRoute =
-    async (req, res) => {
+async (req, res) => {
 
     try {
 
-        const { id } = req.params;
+        const { id } =
+            req.params;
 
         const {
             judul_rute,
             deskripsi,
         } = req.body;
 
-        // validasi
         if (
             !judul_rute ||
             !deskripsi
@@ -175,7 +226,6 @@ const updateThematicRoute =
             );
         }
 
-        // cek route
         const routeCheck =
             await pool.query(
                 `
@@ -186,7 +236,6 @@ const updateThematicRoute =
                 [id]
             );
 
-        // route tidak ditemukan
         if (
             routeCheck.rows.length === 0
         ) {
@@ -197,19 +246,64 @@ const updateThematicRoute =
             );
         }
 
-        // update route
+        let imageUrl =
+            routeCheck.rows[0]
+                .image_url;
+
+        if (req.file) {
+
+            const result =
+                await new Promise(
+                    (
+                        resolve,
+                        reject
+                    ) => {
+
+                        const stream =
+                            cloudinary.uploader.upload_stream(
+                                {
+                                    folder:
+                                        "thematic_routes",
+                                },
+                                (
+                                    error,
+                                    result
+                                ) => {
+
+                                    if (error)
+                                        reject(error);
+
+                                    else
+                                        resolve(result);
+                                }
+                            );
+
+                        streamifier
+                            .createReadStream(
+                                req.file.buffer
+                            )
+                            .pipe(stream);
+                    }
+                );
+
+            imageUrl =
+                result.secure_url;
+        }
+
         await pool.query(
             `
             UPDATE thematic_routes
             SET
                 judul_rute = $1,
                 deskripsi = $2,
+                image_url = $3,
                 updated_at = NOW()
-            WHERE id = $3
+            WHERE id = $4
             `,
             [
                 judul_rute,
                 deskripsi,
+                imageUrl,
                 id,
             ]
         );

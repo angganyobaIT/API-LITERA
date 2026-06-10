@@ -7,6 +7,11 @@ const router =
 const verifyToken =
     require("../middleware/auth");
 
+const upload =
+    require(
+        "../middleware/uploadMiddleware"
+    );
+
 router.use(verifyToken);
 
 const {
@@ -49,6 +54,8 @@ const {
  *                         type: string
  *                       deskripsi:
  *                         type: string
+ *                       image_url:
+ *                         type: string
  *                       is_delete:
  *                         type: boolean
  *                       created_at:
@@ -90,6 +97,8 @@ const {
  *                       type: string
  *                     deskripsi:
  *                       type: string
+ *                     image_url:
+ *                       type: string
  *                     is_delete:
  *                       type: boolean
  *                     created_at:
@@ -107,14 +116,22 @@ const {
  *     requestBody:
  *       required: true
  *       content:
- *         application/json:
+ *         multipart/form-data:
  *           schema:
  *             type: object
+ *             required:
+ *               - judul_rute
+ *               - deskripsi
  *             properties:
  *               judul_rute:
  *                 type: string
+ *                 example: Wisata Laksa
  *               deskripsi:
  *                 type: string
+ *                 example: Menjelajahi kuliner laksa terbaik
+ *               image:
+ *                 type: string
+ *                 format: binary
  *     responses:
  *       200:
  *         description: Rute thematic berhasil ditambahkan
@@ -135,14 +152,19 @@ const {
  *     requestBody:
  *       required: true
  *       content:
- *         application/json:
+ *         multipart/form-data:
  *           schema:
  *             type: object
  *             properties:
  *               judul_rute:
  *                 type: string
+ *                 example: Wisata Laksa Update
  *               deskripsi:
  *                 type: string
+ *                 example: Deskripsi terbaru
+ *               image:
+ *                 type: string
+ *                 format: binary
  *     responses:
  *       200:
  *         description: Rute thematic berhasil diupdate
