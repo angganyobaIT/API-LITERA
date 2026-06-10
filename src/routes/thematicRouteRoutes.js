@@ -219,21 +219,11 @@ router.get(
 // CREATE THEMATIC ROUTE
 router.post(
     "/",
-    createThematicRoute
-);
-
-router.post(
-    "/",
     upload.single("image"),
     createThematicRoute
 );
 
 // UPDATE THEMATIC ROUTE
-router.put(
-    "/:id",
-    updateThematicRoute
-);
-
 router.put(
     "/:id",
     upload.single("image"),
@@ -246,6 +236,7 @@ router.delete(
     deleteThematicRoute
 );
 
+// RESTORE THEMATIC ROUTE
 router.put(
     "/restore/:id",
     restoreThematicRoute
