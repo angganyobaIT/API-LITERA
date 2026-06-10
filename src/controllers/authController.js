@@ -276,10 +276,6 @@ const sendResetOtp = async (
         );
 
         console.log(
-            "REQUEST OTP MASUK"
-        );
-
-        console.log(
             "EMAIL:",
             email
         );
@@ -355,20 +351,6 @@ const sendResetOtp = async (
                 email,
             ]
         );
-
-        console.log(
-            "OTP BERHASIL DISIMPAN KE DATABASE"
-        );
-
-        console.log(
-            "MAIL FROM:",
-            process.env.MAIL_FROM
-        );
-
-        console.log(
-            "MULAI SEND EMAIL VIA BREVO API"
-        );
-
         const response =
             await axios.post(
                 "https://api.brevo.com/v3/smtp/email",
@@ -437,18 +419,6 @@ const sendResetOtp = async (
                     },
                 }
             );
-
-        console.log(
-            "EMAIL BERHASIL DIKIRIM"
-        );
-
-        console.log(
-            "BREVO RESPONSE:"
-        );
-
-        console.log(
-            response.data
-        );
 
         console.log(
             "================================"
@@ -608,9 +578,129 @@ const resetPassword = async (
     }
 };
 
+// CHANGE PASSWORD
+const changePassword = async (
+    req,
+    res
+) => {
+
+    try {
+
+        const userId =
+            req.user.id;
+
+        const {
+            old_password,
+            new_password,
+        } = req.body;
+
+        // validasi
+        if (
+            !old_password ||
+            !new_password
+        ) {
+
+            return errorResponse(
+                res,
+                "Password lama dan password baru wajib diisi"
+            );
+        }
+
+        // ambil user
+        const userResult =
+            await pool.query(
+                `
+                SELECT *
+                FROM users
+                WHERE id = $1
+                `,
+                [userId]
+            );
+
+        if (
+            userResult.rows.length === 0
+        ) {
+
+            return errorResponse(
+                res,
+                "User tidak ditemukan"
+            );
+        }
+
+        const user =
+            userResult.rows[0];
+
+        // cek password lama
+        const isMatch =
+            await bcrypt.compare(
+                old_password,
+                user.password
+            );
+
+        if (!isMatch) {
+
+            return errorResponse(
+                res,
+                "Password lama salah"
+            );
+        }
+
+        // password baru tidak boleh sama
+        const samePassword =
+            await bcrypt.compare(
+                new_password,
+                user.password
+            );
+
+        if (samePassword) {
+
+            return errorResponse(
+                res,
+                "Password baru tidak boleh sama dengan password lama"
+            );
+        }
+
+        // hash password baru
+        const hashedPassword =
+            await bcrypt.hash(
+                new_password,
+                10
+            );
+
+        // update password
+        await pool.query(
+            `
+            UPDATE users
+            SET
+                password = $1
+            WHERE id = $2
+            `,
+            [
+                hashedPassword,
+                userId,
+            ]
+        );
+
+        return successResponse(
+            res,
+            "Password berhasil diubah"
+        );
+
+    } catch (error) {
+
+        console.log(error);
+
+        return errorResponse(
+            res,
+            error.message
+        );
+    }
+};
+
 module.exports = {
     register,
     login,
     sendResetOtp,
     resetPassword,
+    changePassword
 };

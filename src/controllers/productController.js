@@ -50,11 +50,8 @@ const getAllProducts = async (
             "Berhasil mengambil data produk",
             products.rows
         );
-
     } catch (error) {
-
         console.log(error);
-
         return errorResponse(
             res,
             error.message

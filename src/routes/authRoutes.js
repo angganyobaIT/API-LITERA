@@ -2,11 +2,15 @@ const express = require("express");
 
 const router = express.Router();
 
+const verifyToken =
+    require("../middleware/auth");
+
 const {
     register,
     login,
     sendResetOtp,
     resetPassword,
+    changePassword,
     } = require(
         "../controllers/authController"
     );
@@ -48,6 +52,13 @@ router.get(
         "/reset-password",
         resetPassword
     );
+
+    // CHANGE PASSWORD
+    router.put(
+    "/change-password",
+    verifyToken,
+    changePassword
+);
 
 // REGISTER
 /**
@@ -158,6 +169,35 @@ router.get(
  *         description: Password berhasil direset
  *       400:
  *         description: OTP salah atau expired
+ */
+
+/**
+ * @swagger
+ * /api/auth/change-password:
+ *   put:
+ *     summary: Mengubah password user yang sedang login
+ *     tags: [Auth]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - old_password
+ *               - new_password
+ *             properties:
+ *               old_password:
+ *                 type: string
+ *                 example: passwordLama123
+ *               new_password:
+ *                 type: string
+ *                 example: passwordBaru123
+ *     responses:
+ *       200:
+ *         description: Password berhasil diubah
  */
 
 module.exports = router;
