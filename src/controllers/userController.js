@@ -137,10 +137,7 @@ const getUserById = async (
 };
 
 // UPDATE PROFILE
-const updateUser = async (
-    req,
-    res
-) => {
+const updateUser = async (req, res) => {
 
     try {
 
@@ -151,28 +148,6 @@ const updateUser = async (
             email,
             role,
         } = req.body;
-
-        // validasi
-        if (
-            !username ||
-            !email ||
-            role === undefined
-        ) {
-
-            return errorResponse(
-                res,
-                "Semua field wajib diisi"
-            );
-        }
-
-        // validasi role
-        if (![1, 2].includes(role)) {
-
-            return errorResponse(
-                res,
-                "Role tidak valid"
-            );
-        }
 
         // cek user
         const userCheck =
@@ -195,48 +170,93 @@ const updateUser = async (
             );
         }
 
-        // cek username duplicate
-        const usernameCheck =
-            await pool.query(
-                `
-                SELECT *
-                FROM users
-                WHERE username = $1
-                AND id != $2
-                `,
-                [username, id]
-            );
+        const currentUser =
+            userCheck.rows[0];
 
+        // gunakan data lama jika field tidak dikirim
+        const newUsername =
+            username ?? currentUser.username;
+
+        const newEmail =
+            email ?? currentUser.email;
+
+        const newRole =
+            role ?? currentUser.role;
+
+        // validasi role hanya jika dikirim
         if (
-            usernameCheck.rows.length > 0
+            role !== undefined &&
+            ![1, 2].includes(
+                Number(role)
+            )
         ) {
 
             return errorResponse(
                 res,
-                "Username sudah digunakan"
+                "Role tidak valid"
             );
         }
 
-        // cek email duplicate
-        const emailCheck =
-            await pool.query(
-                `
-                SELECT *
-                FROM users
-                WHERE email = $1
-                AND id != $2
-                `,
-                [email, id]
-            );
-
+        // cek username duplicate
         if (
-            emailCheck.rows.length > 0
+            username &&
+            username !== currentUser.username
         ) {
 
-            return errorResponse(
-                res,
-                "Email sudah digunakan"
-            );
+            const usernameCheck =
+                await pool.query(
+                    `
+                    SELECT *
+                    FROM users
+                    WHERE username = $1
+                    AND id != $2
+                    `,
+                    [
+                        username,
+                        id,
+                    ]
+                );
+
+            if (
+                usernameCheck.rows.length > 0
+            ) {
+
+                return errorResponse(
+                    res,
+                    "Username sudah digunakan"
+                );
+            }
+        }
+
+        // cek email duplicate
+        if (
+            email &&
+            email !== currentUser.email
+        ) {
+
+            const emailCheck =
+                await pool.query(
+                    `
+                    SELECT *
+                    FROM users
+                    WHERE email = $1
+                    AND id != $2
+                    `,
+                    [
+                        email,
+                        id,
+                    ]
+                );
+
+            if (
+                emailCheck.rows.length > 0
+            ) {
+
+                return errorResponse(
+                    res,
+                    "Email sudah digunakan"
+                );
+            }
         }
 
         // update user
@@ -250,19 +270,27 @@ const updateUser = async (
             WHERE id = $4
             `,
             [
-                username,
-                email,
-                role,
+                newUsername,
+                newEmail,
+                newRole,
                 id,
             ]
         );
 
         return successResponse(
             res,
-            "Profile berhasil diupdate"
+            "Profile berhasil diupdate",
+            {
+                id,
+                username: newUsername,
+                email: newEmail,
+                role: newRole,
+            }
         );
 
     } catch (error) {
+
+        console.log(error);
 
         return errorResponse(
             res,
@@ -289,7 +317,9 @@ const updateProfile = async (req, res) => {
                 [id]
             );
 
-        if (userCheck.rows.length === 0) {
+        if (
+            userCheck.rows.length === 0
+        ) {
 
             return errorResponse(
                 res,
@@ -320,7 +350,6 @@ const updateProfile = async (req, res) => {
 
                                     if (error)
                                         reject(error);
-
                                     else
                                         resolve(result);
                                 }
@@ -338,23 +367,29 @@ const updateProfile = async (req, res) => {
                 result.secure_url;
         }
 
-        // update foto
-        await pool.query(
-            `
-            UPDATE users
-            SET profile_picture = $1
-            WHERE id = $2
-            `,
-            [
-                profilePicture,
-                id,
-            ]
-        );
+        // update foto hanya jika berubah
+        if (
+            req.file
+        ) {
+
+            await pool.query(
+                `
+                UPDATE users
+                SET profile_picture = $1
+                WHERE id = $2
+                `,
+                [
+                    profilePicture,
+                    id,
+                ]
+            );
+        }
 
         // update nama customer
         if (
             user.role === 2 &&
-            name
+            name !== undefined &&
+            name.trim() !== ""
         ) {
 
             await pool.query(
@@ -366,22 +401,39 @@ const updateProfile = async (req, res) => {
                 WHERE user_id = $2
                 `,
                 [
-                    name,
+                    name.trim(),
                     id,
                 ]
             );
         }
 
+        // ambil data terbaru
+        const updatedProfile =
+            await pool.query(
+                `
+                SELECT
+                    users.id,
+                    users.username,
+                    users.email,
+                    users.profile_picture,
+                    customers.name
+                FROM users
+                LEFT JOIN customers
+                    ON customers.user_id = users.id
+                WHERE users.id = $1
+                `,
+                [id]
+            );
+
         return successResponse(
             res,
             "Profile berhasil diupdate",
-            {
-                profile_picture:
-                    profilePicture,
-            }
+            updatedProfile.rows[0]
         );
 
     } catch (error) {
+
+        console.log(error);
 
         return errorResponse(
             res,

@@ -126,7 +126,7 @@ router.put(
  * @swagger
  * /api/users/profile/{id}:
  *   put:
- *     summary: Update profile customer/merchant dan foto profile
+ *     summary: Update profile customer dan foto profile
  *     tags: [Users]
  *     parameters:
  *       - in: path
@@ -144,21 +144,15 @@ router.put(
  *               name:
  *                 type: string
  *                 description: Nama customer
- *               nama_bisnis:
- *                 type: string
- *                 description: Nama bisnis merchant
- *               deskripsi:
- *                 type: string
- *                 description: Deskripsi merchant
- *               tahun_berdiri:
- *                 type: integer
- *                 description: Tahun berdiri merchant
  *               profile_picture:
  *                 type: string
  *                 format: binary
+ *                 description: Foto profile
  *     responses:
  *       200:
  *         description: Profile berhasil diupdate
+ *       404:
+ *         description: User tidak ditemukan
  */
 
 /**
