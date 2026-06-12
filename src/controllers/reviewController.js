@@ -24,13 +24,17 @@ const getAllReviews = async (
         await pool.query(
             `
             SELECT
-
                 reviews.id,
+                reviews.customer_id,
                 reviews.rating,
                 reviews.deskripsi,
                 reviews.image_url,
                 reviews.is_delete,
                 reviews.submitted_at,
+
+                customers.name AS customer_name,
+
+                merchants.nama_bisnis
 
                 customers.name
                 AS customer_name,
@@ -82,18 +86,17 @@ const getReviewById = async (
         await pool.query(
             `
             SELECT
+            reviews.id,
+            reviews.customer_id,
+            reviews.rating,
+            reviews.deskripsi,
+            reviews.image_url,
+            reviews.is_delete,
+            reviews.submitted_at,
 
-                reviews.id,
-                reviews.rating,
-                reviews.deskripsi,
-                reviews.image_url,
-                reviews.is_delete,
-                reviews.submitted_at,
+            customers.name AS customer_name,
 
-                customers.name
-                AS customer_name,
-
-                merchants.nama_bisnis
+            merchants.nama_bisnis
 
             FROM reviews
 

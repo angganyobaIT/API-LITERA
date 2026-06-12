@@ -49,6 +49,8 @@ const upload =
  *                     properties:
  *                       id:
  *                         type: integer
+ *                       customer_id:
+ *                          type: integer
  *                       rating:
  *                         type: integer
  *                       deskripsi:
@@ -93,6 +95,8 @@ const upload =
  *                   type: object
  *                   properties:
  *                     id:
+ *                       type: integer
+ *                     customer_id:
  *                       type: integer
  *                     rating:
  *                       type: integer
