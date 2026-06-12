@@ -23,13 +23,15 @@ async (req, res) => {
             await pool.query(
                 `
                 SELECT
-
                     m.id,
                     m.user_id,
                     m.nama_bisnis,
-                    m.tahun_berdiri,
+                    m.usaha_dibuka,
+                    m.jam_buka,
+                    m.jam_tutup,
                     m.deskripsi,
                     m.image_url,
+                    m.image_qr,
                     m.status,
 
                     u.profile_picture,
@@ -84,13 +86,15 @@ async (req, res) => {
             await pool.query(
                 `
                 SELECT
-
                     m.id,
                     m.user_id,
                     m.nama_bisnis,
-                    m.tahun_berdiri,
+                    m.usaha_dibuka,
+                    m.jam_buka,
+                    m.jam_tutup,
                     m.deskripsi,
                     m.image_url,
+                    m.image_qr,
                     m.status,
 
                     u.profile_picture,
@@ -152,13 +156,15 @@ async (req, res) => {
             await pool.query(
                 `
                 SELECT
-
                     m.id,
                     m.user_id,
                     m.nama_bisnis,
-                    m.tahun_berdiri,
+                    m.usaha_dibuka,
+                    m.jam_buka,
+                    m.jam_tutup,
                     m.deskripsi,
                     m.image_url,
+                    m.image_qr,
                     m.status,
 
                     u.profile_picture,
@@ -218,19 +224,23 @@ async (req, res) => {
 
         const {
             nama_bisnis,
-            tahun_berdiri,
+            usaha_dibuka,
+            jam_buka,
+            jam_tutup,
             deskripsi,
         } = req.body;
 
         if (
             !nama_bisnis ||
-            !tahun_berdiri ||
+            !usaha_dibuka ||
+            !jam_buka ||
+            !jam_tutup ||
             !deskripsi
         ) {
 
             return errorResponse(
                 res,
-                "Field wajib diisi"
+                "Semua field wajib diisi"
             );
         }
 
@@ -258,7 +268,16 @@ async (req, res) => {
             merchantCheck.rows[0]
                 .image_url;
 
-        if (req.file) {
+        let imageQr =
+            merchantCheck.rows[0]
+                .image_qr;
+
+        // =========================
+        // Upload Foto Merchant
+        // =========================
+        if (
+            req.files?.image_url?.[0]
+        ) {
 
             const result =
                 await new Promise(
@@ -290,7 +309,9 @@ async (req, res) => {
 
                         streamifier
                             .createReadStream(
-                                req.file.buffer
+                                req.files
+                                    .image_url[0]
+                                    .buffer
                             )
                             .pipe(stream);
                     }
@@ -300,24 +321,81 @@ async (req, res) => {
                 result.secure_url;
         }
 
+        // =========================
+        // Upload QRIS
+        // =========================
+        if (
+            req.files?.image_qr?.[0]
+        ) {
+
+            const result =
+                await new Promise(
+                    (
+                        resolve,
+                        reject
+                    ) => {
+
+                        const stream =
+                            cloudinary.uploader.upload_stream(
+
+                                {
+                                    folder:
+                                        "merchant_qr",
+                                },
+
+                                (
+                                    error,
+                                    result
+                                ) => {
+
+                                    if (error)
+                                        reject(error);
+
+                                    else
+                                        resolve(result);
+                                }
+                            );
+
+                        streamifier
+                            .createReadStream(
+                                req.files
+                                    .image_qr[0]
+                                    .buffer
+                            )
+                            .pipe(stream);
+                    }
+                );
+
+            imageQr =
+                result.secure_url;
+        }
+
         const merchant =
             await pool.query(
                 `
                 UPDATE merchants
                 SET
                     nama_bisnis = $1,
-                    tahun_berdiri = $2,
-                    deskripsi = $3,
-                    image_url = $4,
+                    usaha_dibuka = $2,
+                    jam_buka = $3,
+                    jam_tutup = $4,
+                    deskripsi = $5,
+                    image_url = $6,
+                    image_qr = $7,
                     updated_at = NOW()
-                WHERE id = $5
+
+                WHERE id = $8
+
                 RETURNING *
                 `,
                 [
                     nama_bisnis,
-                    tahun_berdiri,
+                    usaha_dibuka,
+                    jam_buka,
+                    jam_tutup,
                     deskripsi,
                     imageUrl,
+                    imageQr,
                     id,
                 ]
             );

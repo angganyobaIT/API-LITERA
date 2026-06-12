@@ -1,148 +1,189 @@
-    const express =
-        require("express");
+const express =
+    require("express");
 
-    const router =
-        express.Router();
+const router =
+    express.Router();
 
-    const verifyToken =
-        require("../middleware/auth");
+const verifyToken =
+    require("../middleware/auth");
 
-    router.use(
-        verifyToken
+const upload =
+    require(
+        "../middleware/uploadMiddleware"
     );
 
-    const {
-        getAllMerchants,
-        getMerchantById,
-        getMerchantByUserId,
-        updateMerchantInformation,
-        updateMerchantStatus,
-    } = require(
-        "../controllers/merchantController"
-    );
+router.use(
+    verifyToken
+);
 
-    const upload =
-        require(
-            "../middleware/uploadMiddleware"
-        );
+const {
+    getAllMerchants,
+    getMerchantById,
+    getMerchantByUserId,
+    updateMerchantInformation,
+    updateMerchantStatus,
+} = require(
+    "../controllers/merchantController"
+);
 
+/**
+ * @swagger
+ * /api/merchants:
+ *   get:
+ *     summary: Mengambil semua merchant
+ *     tags: [Merchants]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Berhasil mengambil semua merchant
+ */
 
-    /**
-     * @swagger
-     * /api/merchants:
-     *   get:
-     *     summary: Mengambil semua merchant
-     *     tags: [Merchants]
-     *     security:
-     *       - bearerAuth: []
-     *     responses:
-     *       200:
-     *         description: Berhasil mengambil semua merchant
-     */
+/**
+ * @swagger
+ * /api/merchants/{id}:
+ *   get:
+ *     summary: Mengambil detail merchant berdasarkan id
+ *     tags: [Merchants]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       200:
+ *         description: Berhasil mengambil detail merchant
+ */
 
-    /**
-     * @swagger
-     * /api/merchants/{id}:
-     *   get:
-     *     summary: Mengambil detail merchant berdasarkan id
-     *     tags: [Merchants]
-     *     security:
-     *       - bearerAuth: []
-     *     parameters:
-     *       - in: path
-     *         name: id
-     *         required: true
-     *         schema:
-     *           type: integer
-     *     responses:
-     *       200:
-     *         description: Berhasil mengambil detail merchant
-     */
+/**
+ * @swagger
+ * /api/merchants/user/{user_id}:
+ *   get:
+ *     summary: Mengambil merchant berdasarkan user id
+ *     tags: [Merchants]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: user_id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       200:
+ *         description: Berhasil mengambil data merchant
+ */
 
-    /**
-     * @swagger
-     * /api/merchants/user/{user_id}:
-     *   get:
-     *     summary: Mengambil merchant berdasarkan user id
-     *     tags: [Merchants]
-     *     security:
-     *       - bearerAuth: []
-     *     parameters:
-     *       - in: path
-     *         name: user_id
-     *         required: true
-     *         schema:
-     *           type: integer
-     *     responses:
-     *       200:
-     *         description: Berhasil mengambil data merchant
-     */
+/**
+ * @swagger
+ * /api/merchants/{id}/information:
+ *   put:
+ *     summary: Update informasi bisnis merchant
+ *     tags: [Merchants]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: ID merchant
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         multipart/form-data:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - nama_bisnis
+ *               - usaha_dibuka
+ *               - jam_buka
+ *               - jam_tutup
+ *               - deskripsi
+ *             properties:
+ *
+ *               nama_bisnis:
+ *                 type: string
+ *                 example: Kedai Kopi Litera
+ *
+ *               usaha_dibuka:
+ *                 type: string
+ *                 format: date
+ *                 example: 2023-10-19
+ *
+ *               jam_buka:
+ *                 type: string
+ *                 example: "08:00"
+ *
+ *               jam_tutup:
+ *                 type: string
+ *                 example: "22:00"
+ *
+ *               deskripsi:
+ *                 type: string
+ *                 example: Tempat nongkrong nyaman dan menyediakan kopi lokal.
+ *
+ *               image_url:
+ *                 type: string
+ *                 format: binary
+ *                 description: Foto utama merchant
+ *
+ *               image_qr:
+ *                 type: string
+ *                 format: binary
+ *                 description: QRIS merchant
+ *
+ *     responses:
+ *       200:
+ *         description: Informasi bisnis berhasil diperbarui
+ *       400:
+ *         description: Validasi gagal
+ *       404:
+ *         description: Merchant tidak ditemukan
+ */
 
-    /**
-     * @swagger
-     * /api/merchants/{id}/information:
-     *   put:
-     *     summary: Update informasi bisnis merchant
-     *     tags: [Merchants]
-     *     security:
-     *       - bearerAuth: []
-     *     parameters:
-     *       - in: path
-     *         name: id
-     *         required: true
-     *         schema:
-     *           type: integer
-     *     requestBody:
-     *       required: true
-     *       content:
-     *         multipart/form-data:
-     *           schema:
-     *             type: object
-     *             properties:
-     *               nama_bisnis:
-     *                 type: string
-     *               tahun_berdiri:
-     *                 type: integer
-     *               deskripsi:
-     *                 type: string
-     *               image:
-     *                 type: string
-     *                 format: binary
-     *     responses:
-     *       200:
-     *         description: Informasi bisnis berhasil diperbarui
-     */
-
-    /**
-     * @swagger
-     * /api/merchants/{id}/status:
-     *   put:
-     *     summary: Update status merchant
-     *     tags: [Merchants]
-     *     security:
-     *       - bearerAuth: []
-     *     parameters:
-     *       - in: path
-     *         name: id
-     *         required: true
-     *         schema:
-     *           type: integer
-     *     requestBody:
-     *       required: true
-     *       content:
-     *         application/json:
-     *           schema:
-     *             type: object
-     *             properties:
-     *               status:
-     *                 type: string
-     *                 enum:
-     *                   - Buka
-     *                   - Tutup
-     *     responses:
-     *       200:
-     *         description: Status merchant berhasil diperbarui
-     */
+/**
+ * @swagger
+ * /api/merchants/{id}/status:
+ *   put:
+ *     summary: Update status merchant
+ *     tags: [Merchants]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: ID merchant
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - status
+ *             properties:
+ *               status:
+ *                 type: string
+ *                 enum:
+ *                   - Buka
+ *                   - Tutup
+ *                 example: Buka
+ *     responses:
+ *       200:
+ *         description: Status merchant berhasil diperbarui
+ *       400:
+ *         description: Status tidak valid
+ *       404:
+ *         description: Merchant tidak ditemukan
+ */
 
 
     // GET ALL
@@ -166,7 +207,18 @@
     // UPDATE INFORMASI BISNIS
     router.put(
         "/:id/information",
-        upload.single("image"),
+
+        upload.fields([
+            {
+                name: "image_url",
+                maxCount: 1,
+            },
+            {
+                name: "image_qr",
+                maxCount: 1,
+            },
+        ]),
+
         updateMerchantInformation
     );
 
@@ -175,6 +227,7 @@
         "/:id/status",
         updateMerchantStatus
     );
+
 
     module.exports =
         router;
