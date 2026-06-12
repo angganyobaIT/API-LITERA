@@ -23,7 +23,7 @@ const getAllReviews = async (
         const reviews =
         await pool.query(
             `
-            SELECT
+                SELECT
                 reviews.id,
                 reviews.customer_id,
                 reviews.rating,
@@ -33,23 +33,15 @@ const getAllReviews = async (
                 reviews.submitted_at,
 
                 customers.name AS customer_name,
-
-                merchants.nama_bisnis
-
-                customers.name
-                AS customer_name,
-
                 merchants.nama_bisnis
 
             FROM reviews
 
             JOIN customers
-            ON customers.id =
-            reviews.customer_id
+            ON customers.id = reviews.customer_id
 
             JOIN merchants
-            ON merchants.id =
-            reviews.merchant_id
+            ON merchants.id = reviews.merchant_id
 
             ORDER BY reviews.id DESC
             `

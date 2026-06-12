@@ -50,17 +50,19 @@ const upload =
  *                       id:
  *                         type: integer
  *                       customer_id:
- *                          type: integer
+ *                         type: integer
  *                       rating:
  *                         type: integer
  *                       deskripsi:
  *                         type: string
  *                       image_url:
  *                         type: string
+ *                         nullable: true
  *                       is_delete:
  *                         type: boolean
  *                       submitted_at:
  *                         type: string
+ *                         format: date-time
  *                       customer_name:
  *                         type: string
  *                       nama_bisnis:
@@ -77,6 +79,7 @@ const upload =
  *       - in: path
  *         name: id
  *         required: true
+ *         description: ID review
  *         schema:
  *           type: integer
  *     responses:
@@ -104,14 +107,18 @@ const upload =
  *                       type: string
  *                     image_url:
  *                       type: string
+ *                       nullable: true
  *                     is_delete:
  *                       type: boolean
  *                     submitted_at:
  *                       type: string
+ *                       format: date-time
  *                     customer_name:
  *                       type: string
  *                     nama_bisnis:
  *                       type: string
+ *       404:
+ *         description: Review tidak ditemukan
  */
 
 /**
