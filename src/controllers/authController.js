@@ -588,14 +588,12 @@ const changePassword = async (
         const { id } =
             req.params;
 
-        const userId =
-            parseInt(id);
-
         const {
             old_password,
             new_password,
         } = req.body;
 
+        // validasi
         if (
             !old_password ||
             !new_password
@@ -607,6 +605,7 @@ const changePassword = async (
             );
         }
 
+        // ambil user berdasarkan id
         const userResult =
             await pool.query(
                 `
@@ -614,7 +613,7 @@ const changePassword = async (
                 FROM users
                 WHERE id = $1
                 `,
-                [userId]
+                [id]
             );
 
         if (
@@ -630,6 +629,7 @@ const changePassword = async (
         const user =
             userResult.rows[0];
 
+        // cek password lama
         const isMatch =
             await bcrypt.compare(
                 old_password,
@@ -644,6 +644,7 @@ const changePassword = async (
             );
         }
 
+        // password baru tidak boleh sama
         const samePassword =
             await bcrypt.compare(
                 new_password,
@@ -658,21 +659,24 @@ const changePassword = async (
             );
         }
 
+        // hash password baru
         const hashedPassword =
             await bcrypt.hash(
                 new_password,
                 10
             );
 
+        // update password
         await pool.query(
             `
             UPDATE users
-            SET password = $1
+            SET
+                password = $1
             WHERE id = $2
             `,
             [
                 hashedPassword,
-                userId,
+                id,
             ]
         );
 

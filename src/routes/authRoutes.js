@@ -164,12 +164,19 @@ router.put(
 
 /**
  * @swagger
- * /api/auth/change-password:
+ * /api/auth/change-password/{id}:
  *   put:
- *     summary: Mengubah password user yang sedang login
+ *     summary: Mengubah password user berdasarkan id
  *     tags: [Auth]
  *     security:
  *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         description: ID user
+ *         schema:
+ *           type: integer
  *     requestBody:
  *       required: true
  *       content:
@@ -193,9 +200,9 @@ router.put(
 
 /**
  * @swagger
- * /api/auth/change-password/{id}:
+ * /api/auth/biometric/{id}:
  *   put:
- *     summary: Mengubah password user berdasarkan ID
+ *     summary: Mengubah status biometrik user
  *     tags: [Auth]
  *     security:
  *       - bearerAuth: []
@@ -203,10 +210,8 @@ router.put(
  *       - in: path
  *         name: id
  *         required: true
- *         description: ID user yang akan diubah passwordnya
  *         schema:
  *           type: integer
- *           example: 34
  *     requestBody:
  *       required: true
  *       content:
@@ -214,17 +219,14 @@ router.put(
  *           schema:
  *             type: object
  *             required:
- *               - old_password
- *               - new_password
+ *               - biometric_enabled
  *             properties:
- *               old_password:
- *                 type: string
- *                 example: passwordLama123
- *               new_password:
- *                 type: string
- *                 example: passwordBaru123
+ *               biometric_enabled:
+ *                 type: boolean
+ *                 example: true
  *     responses:
  *       200:
- *         description: Password berhasil diubah
+ *         description: Status biometrik berhasil diperbarui
  */
+
 module.exports = router;
