@@ -39,9 +39,8 @@ const {
         resetPassword
     );
 
-    // CHANGE PASSWORD
     router.put(
-    "/change-password",
+    "/change-password/:id",
     verifyToken,
     changePassword
 );
@@ -194,9 +193,9 @@ router.put(
 
 /**
  * @swagger
- * /api/auth/biometric/{id}:
+ * /api/auth/change-password/{id}:
  *   put:
- *     summary: Mengubah status biometrik user
+ *     summary: Mengubah password user berdasarkan ID
  *     tags: [Auth]
  *     security:
  *       - bearerAuth: []
@@ -204,8 +203,10 @@ router.put(
  *       - in: path
  *         name: id
  *         required: true
+ *         description: ID user yang akan diubah passwordnya
  *         schema:
  *           type: integer
+ *           example: 34
  *     requestBody:
  *       required: true
  *       content:
@@ -213,14 +214,17 @@ router.put(
  *           schema:
  *             type: object
  *             required:
- *               - biometric_enabled
+ *               - old_password
+ *               - new_password
  *             properties:
- *               biometric_enabled:
- *                 type: boolean
- *                 example: true
+ *               old_password:
+ *                 type: string
+ *                 example: passwordLama123
+ *               new_password:
+ *                 type: string
+ *                 example: passwordBaru123
  *     responses:
  *       200:
- *         description: Status biometrik berhasil diperbarui
+ *         description: Password berhasil diubah
  */
-
 module.exports = router;
