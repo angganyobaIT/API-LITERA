@@ -26,7 +26,7 @@ async (req, res) => {
                     m.id,
                     m.user_id,
                     m.nama_bisnis,
-                    m.usaha_dibuka,
+                    m.usaha_didirikan,
                     m.jam_buka,
                     m.jam_tutup,
                     m.deskripsi,
@@ -89,7 +89,7 @@ async (req, res) => {
                     m.id,
                     m.user_id,
                     m.nama_bisnis,
-                    m.usaha_dibuka,
+                    m.usaha_didirikan,
                     m.jam_buka,
                     m.jam_tutup,
                     m.deskripsi,
@@ -159,7 +159,7 @@ async (req, res) => {
                     m.id,
                     m.user_id,
                     m.nama_bisnis,
-                    m.usaha_dibuka,
+                    m.usaha_didirikan,
                     m.jam_buka,
                     m.jam_tutup,
                     m.deskripsi,
@@ -224,7 +224,7 @@ async (req, res) => {
 
         const {
             nama_bisnis,
-            usaha_dibuka,
+            usaha_didirikan,
             jam_buka,
             jam_tutup,
             deskripsi,
@@ -232,7 +232,7 @@ async (req, res) => {
 
         if (
             !nama_bisnis ||
-            !usaha_dibuka ||
+            !usaha_didirikan ||
             !jam_buka ||
             !jam_tutup ||
             !deskripsi
@@ -376,7 +376,7 @@ async (req, res) => {
                 UPDATE merchants
                 SET
                     nama_bisnis = $1,
-                    usaha_dibuka = $2,
+                    usaha_didirikan = $2,
                     jam_buka = $3,
                     jam_tutup = $4,
                     deskripsi = $5,
@@ -390,7 +390,7 @@ async (req, res) => {
                 `,
                 [
                     nama_bisnis,
-                    usaha_dibuka,
+                    usaha_didirikan,
                     jam_buka,
                     jam_tutup,
                     deskripsi,

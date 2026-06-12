@@ -100,7 +100,7 @@ const {
  *             type: object
  *             required:
  *               - nama_bisnis
- *               - usaha_dibuka
+ *               - usaha_didirikan
  *               - jam_buka
  *               - jam_tutup
  *               - deskripsi
@@ -110,7 +110,7 @@ const {
  *                 type: string
  *                 example: Kedai Kopi Litera
  *
- *               usaha_dibuka:
+ *               usaha_didirikan:
  *                 type: string
  *                 format: date
  *                 example: 2023-10-19
