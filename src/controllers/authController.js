@@ -697,10 +697,71 @@ const changePassword = async (
     }
 };
 
+const updateBiometricStatus = async (
+    req,
+    res
+) => {
+
+    try {
+
+        const { id } =
+            req.params;
+
+        const {
+            biometric_enabled,
+        } = req.body;
+
+        const userCheck =
+            await pool.query(
+                `
+                SELECT *
+                FROM users
+                WHERE id = $1
+                `,
+                [id]
+            );
+
+        if (
+            userCheck.rows.length === 0
+        ) {
+
+            return errorResponse(
+                res,
+                "User tidak ditemukan"
+            );
+        }
+
+        await pool.query(
+            `
+            UPDATE users
+            SET biometric_enabled = $1
+            WHERE id = $2
+            `,
+            [
+                biometric_enabled,
+                id,
+            ]
+        );
+
+        return successResponse(
+            res,
+            "Status biometrik berhasil diperbarui"
+        );
+
+    } catch (error) {
+
+        return errorResponse(
+            res,
+            error.message
+        );
+    }
+};
+
 module.exports = {
     register,
     login,
     sendResetOtp,
     resetPassword,
-    changePassword
+    changePassword,
+    updateBiometricStatus,
 };

@@ -11,24 +11,10 @@ const {
     sendResetOtp,
     resetPassword,
     changePassword,
+    updateBiometricStatus,
     } = require(
         "../controllers/authController"
     );
-
-router.get(
-    "/test",
-    (req, res) => {
-
-        console.log(
-            "TEST ROUTE HIT"
-        );
-
-        return res.json({
-            success: true,
-            message: "Auth route berjalan"
-        });
-    }
-);
 
     router.post(
         "/register",
@@ -58,6 +44,12 @@ router.get(
     "/change-password",
     verifyToken,
     changePassword
+);
+
+router.put(
+    "/biometric",
+    verifyToken,
+    updateBiometricStatus
 );
 
 // REGISTER
@@ -200,4 +192,30 @@ router.get(
  *         description: Password berhasil diubah
  */
 
+/**
+ * @swagger
+ * /api/auth/biometric:
+ *   put:
+ *     summary: Mengaktifkan atau menonaktifkan login biometrik
+ *     tags: [Auth]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - biometric_enabled
+ *             properties:
+ *               biometric_enabled:
+ *                 type: boolean
+ *                 example: true
+ *     responses:
+ *       200:
+ *         description: Status biometrik berhasil diperbarui
+ *       401:
+ *         description: Unauthorized
+ */
 module.exports = router;
