@@ -47,7 +47,7 @@ const {
 );
 
 router.put(
-    "/biometric",
+    "/biometric/:id",
     verifyToken,
     updateBiometricStatus
 );
@@ -194,12 +194,18 @@ router.put(
 
 /**
  * @swagger
- * /api/auth/biometric:
+ * /api/auth/biometric/{id}:
  *   put:
- *     summary: Mengaktifkan atau menonaktifkan login biometrik
+ *     summary: Mengubah status biometrik user
  *     tags: [Auth]
  *     security:
  *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
  *     requestBody:
  *       required: true
  *       content:
@@ -215,7 +221,6 @@ router.put(
  *     responses:
  *       200:
  *         description: Status biometrik berhasil diperbarui
- *       401:
- *         description: Unauthorized
  */
+
 module.exports = router;

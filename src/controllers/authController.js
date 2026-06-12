@@ -711,6 +711,16 @@ const updateBiometricStatus = async (
             biometric_enabled,
         } = req.body;
 
+        if (
+            typeof biometric_enabled !== "boolean"
+        ) {
+
+            return errorResponse(
+                res,
+                "Status biometrik tidak valid"
+            );
+        }
+
         const userCheck =
             await pool.query(
                 `
