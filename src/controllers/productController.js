@@ -25,6 +25,7 @@ const getAllProducts = async (
                 `
                 SELECT
                     products.id,
+                    products.merchant_id,
                     products.nama_produk,
                     products.harga_produk,
                     products.deskripsi,
@@ -33,14 +34,17 @@ const getAllProducts = async (
                     products.created_at,
                     products.updated_at,
                     merchants.nama_bisnis,
-                    category_products.id
-                        AS category_id,
+                    category_products.id AS category_id,
                     category_products.category_name
 
                 FROM products
 
-                JOIN merchants ON merchants.id = products.merchant_id
-                JOIN category_products ON category_products.id = products.category_id
+                JOIN merchants
+                    ON merchants.id = products.merchant_id
+
+                JOIN category_products
+                    ON category_products.id = products.category_id
+
                 ORDER BY products.id DESC
                 `
             );
@@ -74,6 +78,7 @@ const getProductById = async (
                 `
                 SELECT
                     products.id,
+                    products.merchant_id,
                     products.nama_produk,
                     products.harga_produk,
                     products.deskripsi,
@@ -82,15 +87,17 @@ const getProductById = async (
                     products.created_at,
                     products.updated_at,
                     merchants.nama_bisnis,
-                    category_products.id
-                        AS category_id,
+                    category_products.id AS category_id,
                     category_products.category_name
 
                 FROM products
 
-                JOIN merchants ON merchants.id = products.merchant_id
-                JOIN category_products ON category_products.id = products.category_id
-                
+                JOIN merchants
+                    ON merchants.id = products.merchant_id
+
+                JOIN category_products
+                    ON category_products.id = products.category_id
+
                 WHERE products.id = $1
                 AND products.is_available = true
                 `,
