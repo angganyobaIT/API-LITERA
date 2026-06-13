@@ -11,11 +11,77 @@ router.use(verifyToken);
 
 const {
     claimVoucher,
+    getAllCustomerVouchers,
     getVouchersByCustomer,
     cancelVoucher,
 } = require(
     "../controllers/customerVoucherController"
 );
+
+/**
+ * @swagger
+ * /api/customer-vouchers:
+ *   get:
+ *     summary: Mengambil semua voucher customer
+ *     tags: [Customer Vouchers]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Berhasil mengambil semua voucher customer
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 message:
+ *                   type: string
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       id:
+ *                         type: integer
+ *                       customer_id:
+ *                         type: integer
+ *                       promotion_id:
+ *                         type: integer
+ *                       voucher_code:
+ *                         type: string
+ *                       status:
+ *                         type: string
+ *                         example: ACTIVE
+ *                       claimed_at:
+ *                         type: string
+ *                         format: date-time
+ *                       used_at:
+ *                         type: string
+ *                         format: date-time
+ *                         nullable: true
+ *                       customer_name:
+ *                         type: string
+ *                       tipe_promo:
+ *                         type: string
+ *                       diskon:
+ *                         type: number
+ *                       tanggal_berlaku:
+ *                         type: string
+ *                         format: date
+ *                       tanggal_expired:
+ *                         type: string
+ *                         format: date
+ *                       product_id:
+ *                         type: integer
+ *                       nama_produk:
+ *                         type: string
+ *                       merchant_id:
+ *                         type: integer
+ *                       nama_bisnis:
+ *                         type: string
+ */
 
 /**
  * @swagger
@@ -72,6 +138,12 @@ const {
  *       200:
  *         description: Voucher berhasil dibatalkan
  */
+
+// GET ALL CUSTOMER VOUCHERS
+router.get(
+    "/",
+    getAllCustomerVouchers
+);
 
 // GET VOUCHERS BY CUSTOMER
 router.get(

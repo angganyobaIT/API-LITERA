@@ -17,6 +17,83 @@ const generateVoucherCode =
         .toUpperCase();
 };
 
+// GET ALL CUSTOMER VOUCHERS
+const getAllCustomerVouchers =
+async (req, res) => {
+
+    try {
+
+        const vouchers =
+            await pool.query(
+                `
+                SELECT
+
+                    customer_vouchers.id,
+                    customer_vouchers.customer_id,
+                    customer_vouchers.promotion_id,
+                    customer_vouchers.voucher_code,
+                    customer_vouchers.status,
+                    customer_vouchers.claimed_at,
+                    customer_vouchers.used_at,
+
+                    customers.name
+                    AS customer_name,
+
+                    promotions.tipe_promo,
+                    promotions.diskon,
+                    promotions.tanggal_berlaku,
+                    promotions.tanggal_expired,
+
+                    products.id
+                    AS product_id,
+
+                    products.nama_produk,
+
+                    merchants.id
+                    AS merchant_id,
+
+                    merchants.nama_bisnis
+
+                FROM customer_vouchers
+
+                JOIN customers
+                ON customers.id =
+                customer_vouchers.customer_id
+
+                JOIN promotions
+                ON promotions.id =
+                customer_vouchers.promotion_id
+
+                JOIN products
+                ON products.id =
+                promotions.product_id
+
+                JOIN merchants
+                ON merchants.id =
+                products.merchant_id
+
+                ORDER BY
+                    customer_vouchers.id DESC
+                `
+            );
+
+        return successResponse(
+            res,
+            "Berhasil mengambil semua voucher customer",
+            vouchers.rows
+        );
+
+    } catch (error) {
+
+        console.log(error);
+
+        return errorResponse(
+            res,
+            error.message
+        );
+    }
+};
+
 // GET VOUCHERS BY CUSTOMER
 const getVouchersByCustomer =
     async (req, res) => {
@@ -369,6 +446,7 @@ const cancelVoucher = async (
 
 module.exports = {
     claimVoucher,
+    getAllCustomerVouchers,
     getVouchersByCustomer,
     cancelVoucher,
 };
