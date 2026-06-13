@@ -14,6 +14,7 @@ const {
     getAllProducts,
     getProductById,
     updateProduct,
+    updateProductStatus,
 } = require(
     "../controllers/productController"
 );
@@ -148,6 +149,40 @@ const upload =
  *         description: Produk berhasil diupdate
  */
 
+/**
+ * @swagger
+ * /api/products/{id}/status:
+ *   put:
+ *     summary: Mengaktifkan atau menonaktifkan produk
+ *     tags: [Products]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: ID produk
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - is_active
+ *             properties:
+ *               is_active:
+ *                 type: boolean
+ *                 example: false
+ *     responses:
+ *       200:
+ *         description: Status produk berhasil diperbarui
+ *       404:
+ *         description: Produk tidak ditemukan
+ */
+
 // GET ALL PRODUCTS
 router.get(
     "/",
@@ -173,6 +208,12 @@ router.put(
     "/:id",
     upload.single("image"),
     updateProduct
+);
+
+// UPDATE STATUS PRODUCT
+router.put(
+    "/:id/status",
+    updateProductStatus
 );
 
 module.exports = router;

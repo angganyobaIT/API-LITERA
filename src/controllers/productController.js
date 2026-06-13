@@ -31,6 +31,7 @@ const getAllProducts = async (
                     products.deskripsi,
                     products.image_url,
                     products.is_available,
+                    products.is_active,
                     products.created_at,
                     products.updated_at,
                     merchants.nama_bisnis,
@@ -84,6 +85,7 @@ const getProductById = async (
                     products.deskripsi,
                     products.image_url,
                     products.is_available,
+                    products.is_active,
                     products.created_at,
                     products.updated_at,
                     merchants.nama_bisnis,
@@ -98,8 +100,7 @@ const getProductById = async (
                 JOIN category_products
                     ON category_products.id = products.category_id
 
-                WHERE products.id = $1
-                AND products.is_available = true
+                WHERE products.id = $1               
                 `,
                 [id]
             );
@@ -258,9 +259,12 @@ const createProduct = async (
             nama_produk,
             harga_produk,
             deskripsi,
-            image_url
+            image_url,
+            is_active
         )
-        VALUES ($1, $2, $3, $4, $5, $6)
+        VALUES (
+            $1,$2,$3,$4,$5,$6,true
+        )
         `,
         [
             merchant_id,
@@ -270,7 +274,7 @@ const createProduct = async (
             deskripsi,
             imageUrl,
         ]
-    );
+        );
 
         return successResponse(
             res,
@@ -430,9 +434,73 @@ const updateProduct = async (
     }
 };
 
+const updateProductStatus =
+async (req, res) => {
+
+    try {
+
+        const { id } =
+            req.params;
+
+        const {
+            is_active,
+        } = req.body;
+
+        const productCheck =
+            await pool.query(
+                `
+                SELECT *
+                FROM products
+                WHERE id = $1
+                `,
+                [id]
+            );
+
+        if (
+            productCheck.rows.length === 0
+        ) {
+
+            return errorResponse(
+                res,
+                "Produk tidak ditemukan"
+            );
+        }
+
+        const product =
+            await pool.query(
+                `
+                UPDATE products
+                SET
+                    is_active = $1,
+                    updated_at = NOW()
+                WHERE id = $2
+                RETURNING *
+                `,
+                [
+                    is_active,
+                    id,
+                ]
+            );
+
+        return successResponse(
+            res,
+            "Status produk berhasil diperbarui",
+            product.rows[0]
+        );
+
+    } catch (error) {
+
+        return errorResponse(
+            res,
+            error.message
+        );
+    }
+};
+
 module.exports = {
     createProduct,
     getAllProducts,
     getProductById,
     updateProduct,
+    updateProductStatus,
 };
