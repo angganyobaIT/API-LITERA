@@ -230,20 +230,6 @@ async (req, res) => {
             deskripsi,
         } = req.body;
 
-        if (
-            !nama_bisnis ||
-            !usaha_didirikan ||
-            !jam_buka ||
-            !jam_tutup ||
-            !deskripsi
-        ) {
-
-            return errorResponse(
-                res,
-                "Semua field wajib diisi"
-            );
-        }
-
         const merchantCheck =
             await pool.query(
                 `
@@ -264,17 +250,65 @@ async (req, res) => {
             );
         }
 
+        const merchantData =
+            merchantCheck.rows[0];
+
+        // =========================
+        // Validasi ada perubahan
+        // =========================
+
+        const adaPerubahan =
+
+            nama_bisnis ||
+            usaha_didirikan ||
+            jam_buka ||
+            jam_tutup ||
+            deskripsi ||
+            req.files?.image_url?.[0] ||
+            req.files?.image_qr?.[0];
+
+        if (!adaPerubahan) {
+
+            return errorResponse(
+                res,
+                "Tidak ada data yang diubah"
+            );
+        }
+
+        // =========================
+        // Ambil data lama jika kosong
+        // =========================
+
+        let namaBisnis =
+            nama_bisnis ??
+            merchantData.nama_bisnis;
+
+        let usahaDidirikan =
+            usaha_didirikan ??
+            merchantData.usaha_didirikan;
+
+        let jamBuka =
+            jam_buka ??
+            merchantData.jam_buka;
+
+        let jamTutup =
+            jam_tutup ??
+            merchantData.jam_tutup;
+
+        let deskripsiUsaha =
+            deskripsi ??
+            merchantData.deskripsi;
+
         let imageUrl =
-            merchantCheck.rows[0]
-                .image_url;
+            merchantData.image_url;
 
         let imageQr =
-            merchantCheck.rows[0]
-                .image_qr;
+            merchantData.image_qr;
 
         // =========================
         // Upload Foto Merchant
         // =========================
+
         if (
             req.files?.image_url?.[0]
         ) {
@@ -324,6 +358,7 @@ async (req, res) => {
         // =========================
         // Upload QRIS
         // =========================
+
         if (
             req.files?.image_qr?.[0]
         ) {
@@ -370,6 +405,10 @@ async (req, res) => {
                 result.secure_url;
         }
 
+        // =========================
+        // Update Merchant
+        // =========================
+
         const merchant =
             await pool.query(
                 `
@@ -383,17 +422,15 @@ async (req, res) => {
                     image_url = $6,
                     image_qr = $7,
                     updated_at = NOW()
-
                 WHERE id = $8
-
                 RETURNING *
                 `,
                 [
-                    nama_bisnis,
-                    usaha_didirikan,
-                    jam_buka,
-                    jam_tutup,
-                    deskripsi,
+                    namaBisnis,
+                    usahaDidirikan,
+                    jamBuka,
+                    jamTutup,
+                    deskripsiUsaha,
                     imageUrl,
                     imageQr,
                     id,
