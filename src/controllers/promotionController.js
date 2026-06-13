@@ -18,8 +18,9 @@ const getAllPromotions = async (
             await pool.query(
                 `
                 SELECT
-
                     promotions.id,
+                    promotions.product_id,
+
                     promotions.tipe_promo,
                     promotions.diskon,
                     promotions.kuota,
@@ -27,8 +28,12 @@ const getAllPromotions = async (
                     promotions.tanggal_expired,
                     promotions.created_at,
                     promotions.updated_at,
+                    promotions.is_delete,
 
                     products.nama_produk,
+
+                    merchants.id
+                    AS merchant_id,
 
                     merchants.nama_bisnis
 
@@ -41,8 +46,6 @@ const getAllPromotions = async (
                 JOIN merchants
                 ON merchants.id =
                 products.merchant_id
-
-                WHERE promotions.is_delete = false
 
                 ORDER BY promotions.id DESC
                 `
@@ -79,8 +82,9 @@ const getPromotionById = async (
             await pool.query(
                 `
                 SELECT
-
                     promotions.id,
+                    promotions.product_id,
+
                     promotions.tipe_promo,
                     promotions.diskon,
                     promotions.kuota,
@@ -88,8 +92,12 @@ const getPromotionById = async (
                     promotions.tanggal_expired,
                     promotions.created_at,
                     promotions.updated_at,
+                    promotions.is_delete,
 
                     products.nama_produk,
+
+                    merchants.id
+                    AS merchant_id,
 
                     merchants.nama_bisnis
 
@@ -104,7 +112,6 @@ const getPromotionById = async (
                 products.merchant_id
 
                 WHERE promotions.id = $1
-                AND promotions.is_delete = false
                 `,
                 [id]
             );
@@ -150,8 +157,9 @@ const getPromotionsByProduct =
             await pool.query(
                 `
                 SELECT
-
                     promotions.id,
+                    promotions.product_id,
+
                     promotions.tipe_promo,
                     promotions.diskon,
                     promotions.kuota,
@@ -159,8 +167,14 @@ const getPromotionsByProduct =
                     promotions.tanggal_expired,
                     promotions.created_at,
                     promotions.updated_at,
+                    promotions.is_delete,
 
-                    products.nama_produk
+                    products.nama_produk,
+
+                    merchants.id
+                    AS merchant_id,
+
+                    merchants.nama_bisnis
 
                 FROM promotions
 
@@ -168,8 +182,11 @@ const getPromotionsByProduct =
                 ON products.id =
                 promotions.product_id
 
+                JOIN merchants
+                ON merchants.id =
+                products.merchant_id
+
                 WHERE promotions.product_id = $1
-                AND promotions.is_delete = false
 
                 ORDER BY promotions.id DESC
                 `,
