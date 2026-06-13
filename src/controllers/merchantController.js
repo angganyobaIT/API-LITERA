@@ -44,14 +44,19 @@ async (req, res) => {
                 LEFT JOIN users u
                     ON u.id = m.user_id
 
-                LEFT JOIN merchant_locations ml
-                    ON ml.merchant_id = m.id
+                LEFT JOIN LATERAL (
+                    SELECT
+                        latitude,
+                        longitude
+                    FROM merchant_locations
+                    WHERE
+                        merchant_id = m.id
+                        AND is_active = true
+                    ORDER BY id DESC
+                    LIMIT 1
+                ) ml ON true
 
-                WHERE
-                    ml.is_active = true
-
-                ORDER BY
-                    m.id DESC
+                ORDER BY m.id DESC;
                 `
             );
 
@@ -107,12 +112,19 @@ async (req, res) => {
                 LEFT JOIN users u
                     ON u.id = m.user_id
 
-                LEFT JOIN merchant_locations ml
-                    ON ml.merchant_id = m.id
+                LEFT JOIN LATERAL (
+                    SELECT
+                        latitude,
+                        longitude
+                    FROM merchant_locations
+                    WHERE
+                        merchant_id = m.id
+                        AND is_active = true
+                    ORDER BY id DESC
+                    LIMIT 1
+                ) ml ON true
 
-                WHERE
-                    m.id = $1
-                    AND ml.is_active = true
+                WHERE m.id = $1;
                 `,
                 [id]
             );
@@ -177,12 +189,19 @@ async (req, res) => {
                 LEFT JOIN users u
                     ON u.id = m.user_id
 
-                LEFT JOIN merchant_locations ml
-                    ON ml.merchant_id = m.id
+                LEFT JOIN LATERAL (
+                    SELECT
+                        latitude,
+                        longitude
+                    FROM merchant_locations
+                    WHERE
+                        merchant_id = m.id
+                        AND is_active = true
+                    ORDER BY id DESC
+                    LIMIT 1
+                ) ml ON true
 
-                WHERE
-                    m.user_id = $1
-                    AND ml.is_active = true
+                WHERE m.user_id = $1;
                 `,
                 [user_id]
             );
