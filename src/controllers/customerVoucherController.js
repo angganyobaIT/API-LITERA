@@ -349,8 +349,7 @@ const claimVoucher = async (
     }
 };
 
-// CANCEL VOUCHER
-const cancelVoucher = async (
+const useVoucher = async (
     req,
     res
 ) => {
@@ -359,7 +358,6 @@ const cancelVoucher = async (
 
         const { id } = req.params;
 
-        // cek voucher
         const voucherCheck =
             await pool.query(
                 `
@@ -370,7 +368,6 @@ const cancelVoucher = async (
                 [id]
             );
 
-        // voucher tidak ditemukan
         if (
             voucherCheck.rows.length === 0
         ) {
@@ -384,7 +381,6 @@ const cancelVoucher = async (
         const voucher =
             voucherCheck.rows[0];
 
-        // voucher sudah digunakan
         if (
             voucher.status === "USED"
         ) {
@@ -395,42 +391,31 @@ const cancelVoucher = async (
             );
         }
 
-        // voucher sudah dibatalkan
         if (
-            voucher.status === "CANCELLED"
+            voucher.status !== "CLAIMED"
         ) {
 
             return errorResponse(
                 res,
-                "Voucher sudah dibatalkan"
+                "Voucher belum dapat digunakan"
             );
         }
 
-        // update status voucher
         await pool.query(
             `
             UPDATE customer_vouchers
             SET
-                status = 'CANCELLED',
+                status = 'USED',
+                used_at = NOW(),
                 updated_at = NOW()
             WHERE id = $1
             `,
             [id]
         );
 
-        // kembalikan kuota promo
-        await pool.query(
-            `
-            UPDATE promotions
-            SET kuota = kuota + 1
-            WHERE id = $1
-            `,
-            [voucher.promotion_id]
-        );
-
         return successResponse(
             res,
-            "Voucher berhasil dibatalkan"
+            "Voucher berhasil digunakan"
         );
 
     } catch (error) {
@@ -448,5 +433,5 @@ module.exports = {
     claimVoucher,
     getAllCustomerVouchers,
     getVouchersByCustomer,
-    cancelVoucher,
+    useVoucher,
 };

@@ -13,7 +13,7 @@ const {
     claimVoucher,
     getAllCustomerVouchers,
     getVouchersByCustomer,
-    cancelVoucher,
+    useVoucher,
 } = require(
     "../controllers/customerVoucherController"
 );
@@ -124,20 +124,24 @@ const {
 
 /**
  * @swagger
- * /api/customer-vouchers/cancel/{id}:
+ * /api/customer-vouchers/use/{id}:
  *   put:
- *     summary: Membatalkan voucher customer
+ *     summary: Menggunakan voucher customer
  *     tags: [Customer Vouchers]
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
  *         required: true
  *         schema:
  *           type: integer
+ *         description: ID voucher
  *     responses:
  *       200:
- *         description: Voucher berhasil dibatalkan
+ *         description: Voucher berhasil digunakan
  */
+
 
 // GET ALL CUSTOMER VOUCHERS
 router.get(
@@ -157,10 +161,10 @@ router.post(
     claimVoucher
 );
 
-// CANCEL VOUCHER
+// USE VOUCHER
 router.put(
-    "/cancel/:id",
-    cancelVoucher
+    "/use/:id",
+    useVoucher
 );
 
 module.exports = router;
