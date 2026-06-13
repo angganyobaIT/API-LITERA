@@ -56,7 +56,7 @@ async (req, res) => {
                     LIMIT 1
                 ) ml ON true
 
-                ORDER BY m.id DESC;
+                ORDER BY m.id DESC
                 `
             );
 
@@ -124,7 +124,7 @@ async (req, res) => {
                     LIMIT 1
                 ) ml ON true
 
-                WHERE m.id = $1;
+                WHERE m.id = $1
                 `,
                 [id]
             );
@@ -201,7 +201,9 @@ async (req, res) => {
                     LIMIT 1
                 ) ml ON true
 
-                WHERE m.user_id = $1;
+                WHERE m.user_id = $1
+
+                LIMIT 1
                 `,
                 [user_id]
             );
