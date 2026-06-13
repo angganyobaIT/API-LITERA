@@ -31,7 +31,6 @@ async (req, res) => {
                     m.jam_tutup,
                     m.deskripsi,
                     m.image_url,
-                    m.image_qr,
                     m.status,
 
                     u.profile_picture,
@@ -99,7 +98,6 @@ async (req, res) => {
                     m.jam_tutup,
                     m.deskripsi,
                     m.image_url,
-                    m.image_qr,
                     m.status,
 
                     u.profile_picture,
@@ -176,7 +174,6 @@ async (req, res) => {
                     m.jam_tutup,
                     m.deskripsi,
                     m.image_url,
-                    m.image_qr,
                     m.status,
 
                     u.profile_picture,
@@ -286,17 +283,15 @@ async (req, res) => {
         // =========================
 
         const adaPerubahan =
-
-            nama_bisnis !== undefined ||
-            usaha_didirikan !== undefined ||
-            jam_buka !== undefined ||
-            jam_tutup !== undefined ||
-            deskripsi !== undefined ||
-            latitude !== undefined ||
-            longitude !== undefined ||
-            alamat !== undefined ||
-            req.files?.image_url?.[0] ||
-            req.files?.image_qr?.[0];
+        nama_bisnis !== undefined ||
+        usaha_didirikan !== undefined ||
+        jam_buka !== undefined ||
+        jam_tutup !== undefined ||
+        deskripsi !== undefined ||
+        latitude !== undefined ||
+        longitude !== undefined ||
+        alamat !== undefined ||
+        req.files?.image_url?.[0];
 
         if (!adaPerubahan) {
 
@@ -312,9 +307,6 @@ async (req, res) => {
 
         let imageUrl =
             merchantData.image_url;
-
-        let imageQr =
-            merchantData.image_qr;
 
         // =========================
         // UPLOAD FOTO MERCHANT
@@ -367,100 +359,47 @@ async (req, res) => {
         }
 
         // =========================
-        // UPLOAD QRIS
-        // =========================
-
-        if (
-            req.files?.image_qr?.[0]
-        ) {
-
-            const result =
-                await new Promise(
-                    (
-                        resolve,
-                        reject
-                    ) => {
-
-                        const stream =
-                            cloudinary.uploader.upload_stream(
-
-                                {
-                                    folder:
-                                        "merchant_qr",
-                                },
-
-                                (
-                                    error,
-                                    result
-                                ) => {
-
-                                    if (error)
-                                        reject(error);
-
-                                    else
-                                        resolve(result);
-                                }
-                            );
-
-                        streamifier
-                            .createReadStream(
-                                req.files
-                                    .image_qr[0]
-                                    .buffer
-                            )
-                            .pipe(stream);
-                    }
-                );
-
-            imageQr =
-                result.secure_url;
-        }
-
-        // =========================
         // UPDATE MERCHANT
         // =========================
 
         const merchant =
-            await pool.query(
-                `
-                UPDATE merchants
-                SET
-                    nama_bisnis =
-                        COALESCE($1, nama_bisnis),
+        await pool.query(
+            `
+            UPDATE merchants
+            SET
+                nama_bisnis =
+                    COALESCE($1, nama_bisnis),
 
-                    usaha_didirikan =
-                        COALESCE($2, usaha_didirikan),
+                usaha_didirikan =
+                    COALESCE($2, usaha_didirikan),
 
-                    jam_buka =
-                        COALESCE($3, jam_buka),
+                jam_buka =
+                    COALESCE($3, jam_buka),
 
-                    jam_tutup =
-                        COALESCE($4, jam_tutup),
+                jam_tutup =
+                    COALESCE($4, jam_tutup),
 
-                    deskripsi =
-                        COALESCE($5, deskripsi),
+                deskripsi =
+                    COALESCE($5, deskripsi),
 
-                    image_url = $6,
+                image_url = $6,
 
-                    image_qr = $7,
+                updated_at = NOW()
 
-                    updated_at = NOW()
+            WHERE id = $7
 
-                WHERE id = $8
-
-                RETURNING *
-                `,
-                [
-                    nama_bisnis,
-                    usaha_didirikan,
-                    jam_buka,
-                    jam_tutup,
-                    deskripsi,
-                    imageUrl,
-                    imageQr,
-                    id,
-                ]
-            );
+            RETURNING *
+            `,
+            [
+                nama_bisnis,
+                usaha_didirikan,
+                jam_buka,
+                jam_tutup,
+                deskripsi,
+                imageUrl,
+                id,
+            ]
+        );
 
         // =========================
         // UPDATE LOCATION

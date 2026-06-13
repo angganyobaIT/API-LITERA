@@ -85,19 +85,22 @@ const {
  *     tags: [Merchants]
  *     security:
  *       - bearerAuth: []
+ *
  *     parameters:
  *       - in: path
  *         name: id
  *         required: true
  *         schema:
  *           type: integer
- *         description: ID merchant
+ *         description: ID Merchant
+ *
  *     requestBody:
  *       required: false
  *       content:
  *         multipart/form-data:
  *           schema:
  *             type: object
+ *
  *             properties:
  *
  *               nama_bisnis:
@@ -140,14 +143,19 @@ const {
  *                 format: binary
  *                 description: Foto utama merchant
  *
- *               image_qr:
- *                 type: string
- *                 format: binary
- *                 description: QRIS pembayaran merchant
- *
  *     responses:
+ *
  *       200:
  *         description: Informasi bisnis berhasil diperbarui
+ *
+ *       400:
+ *         description: Tidak ada data yang diubah
+ *
+ *       404:
+ *         description: Merchant tidak ditemukan
+ *
+ *       500:
+ *         description: Internal server error
  */
 
 
@@ -216,10 +224,6 @@ const {
         upload.fields([
             {
                 name: "image_url",
-                maxCount: 1,
-            },
-            {
-                name: "image_qr",
                 maxCount: 1,
             },
         ]),
