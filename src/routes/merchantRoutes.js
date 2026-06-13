@@ -93,17 +93,11 @@ const {
  *           type: integer
  *         description: ID merchant
  *     requestBody:
- *       required: true
+ *       required: false
  *       content:
  *         multipart/form-data:
  *           schema:
  *             type: object
- *             required:
- *               - nama_bisnis
- *               - usaha_didirikan
- *               - jam_buka
- *               - jam_tutup
- *               - deskripsi
  *             properties:
  *
  *               nama_bisnis:
@@ -135,15 +129,11 @@ const {
  *               image_qr:
  *                 type: string
  *                 format: binary
- *                 description: QRIS merchant
+ *                 description: QRIS pembayaran merchant
  *
  *     responses:
  *       200:
  *         description: Informasi bisnis berhasil diperbarui
- *       400:
- *         description: Validasi gagal
- *       404:
- *         description: Merchant tidak ditemukan
  */
 
 /**
