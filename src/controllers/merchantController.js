@@ -249,7 +249,14 @@ async (req, res) => {
             jam_buka,
             jam_tutup,
             deskripsi,
+            latitude,
+            longitude,
+            alamat,
         } = req.body;
+
+        // =========================
+        // CEK MERCHANT
+        // =========================
 
         const merchantCheck =
             await pool.query(
@@ -275,16 +282,19 @@ async (req, res) => {
             merchantCheck.rows[0];
 
         // =========================
-        // Validasi ada perubahan
+        // CEK ADA PERUBAHAN
         // =========================
 
         const adaPerubahan =
 
-            nama_bisnis ||
-            usaha_didirikan ||
-            jam_buka ||
-            jam_tutup ||
-            deskripsi ||
+            nama_bisnis !== undefined ||
+            usaha_didirikan !== undefined ||
+            jam_buka !== undefined ||
+            jam_tutup !== undefined ||
+            deskripsi !== undefined ||
+            latitude !== undefined ||
+            longitude !== undefined ||
+            alamat !== undefined ||
             req.files?.image_url?.[0] ||
             req.files?.image_qr?.[0];
 
@@ -297,28 +307,8 @@ async (req, res) => {
         }
 
         // =========================
-        // Ambil data lama jika kosong
+        // DATA LAMA
         // =========================
-
-        let namaBisnis =
-            nama_bisnis ??
-            merchantData.nama_bisnis;
-
-        let usahaDidirikan =
-            usaha_didirikan ??
-            merchantData.usaha_didirikan;
-
-        let jamBuka =
-            jam_buka ??
-            merchantData.jam_buka;
-
-        let jamTutup =
-            jam_tutup ??
-            merchantData.jam_tutup;
-
-        let deskripsiUsaha =
-            deskripsi ??
-            merchantData.deskripsi;
 
         let imageUrl =
             merchantData.image_url;
@@ -327,7 +317,7 @@ async (req, res) => {
             merchantData.image_qr;
 
         // =========================
-        // Upload Foto Merchant
+        // UPLOAD FOTO MERCHANT
         // =========================
 
         if (
@@ -377,7 +367,7 @@ async (req, res) => {
         }
 
         // =========================
-        // Upload QRIS
+        // UPLOAD QRIS
         // =========================
 
         if (
@@ -427,7 +417,7 @@ async (req, res) => {
         }
 
         // =========================
-        // Update Merchant
+        // UPDATE MERCHANT
         // =========================
 
         const merchant =
@@ -435,28 +425,126 @@ async (req, res) => {
                 `
                 UPDATE merchants
                 SET
-                    nama_bisnis = $1,
-                    usaha_didirikan = $2,
-                    jam_buka = $3,
-                    jam_tutup = $4,
-                    deskripsi = $5,
+                    nama_bisnis =
+                        COALESCE($1, nama_bisnis),
+
+                    usaha_didirikan =
+                        COALESCE($2, usaha_didirikan),
+
+                    jam_buka =
+                        COALESCE($3, jam_buka),
+
+                    jam_tutup =
+                        COALESCE($4, jam_tutup),
+
+                    deskripsi =
+                        COALESCE($5, deskripsi),
+
                     image_url = $6,
+
                     image_qr = $7,
+
                     updated_at = NOW()
+
                 WHERE id = $8
+
                 RETURNING *
                 `,
                 [
-                    namaBisnis,
-                    usahaDidirikan,
-                    jamBuka,
-                    jamTutup,
-                    deskripsiUsaha,
+                    nama_bisnis,
+                    usaha_didirikan,
+                    jam_buka,
+                    jam_tutup,
+                    deskripsi,
                     imageUrl,
                     imageQr,
                     id,
                 ]
             );
+
+        // =========================
+        // UPDATE LOCATION
+        // =========================
+
+        if (
+            latitude !== undefined ||
+            longitude !== undefined ||
+            alamat !== undefined
+        ) {
+
+            const locationCheck =
+                await pool.query(
+                    `
+                    SELECT *
+                    FROM merchant_locations
+                    WHERE merchant_id = $1
+                    AND is_active = true
+                    ORDER BY id DESC
+                    LIMIT 1
+                    `,
+                    [id]
+                );
+
+            if (
+                locationCheck.rows.length > 0
+            ) {
+
+                const location =
+                    locationCheck.rows[0];
+
+                await pool.query(
+                    `
+                    UPDATE merchant_locations
+                    SET
+                        latitude =
+                            COALESCE($1, latitude),
+
+                        longitude =
+                            COALESCE($2, longitude),
+
+                        alamat =
+                            COALESCE($3, alamat),
+
+                        updated_at = NOW()
+
+                    WHERE id = $4
+                    `,
+                    [
+                        latitude,
+                        longitude,
+                        alamat,
+                        location.id,
+                    ]
+                );
+
+            } else {
+
+                await pool.query(
+                    `
+                    INSERT INTO merchant_locations (
+                        merchant_id,
+                        latitude,
+                        longitude,
+                        alamat,
+                        is_active
+                    )
+                    VALUES (
+                        $1,
+                        $2,
+                        $3,
+                        $4,
+                        true
+                    )
+                    `,
+                    [
+                        id,
+                        latitude,
+                        longitude,
+                        alamat,
+                    ]
+                );
+            }
+        }
 
         return successResponse(
             res,

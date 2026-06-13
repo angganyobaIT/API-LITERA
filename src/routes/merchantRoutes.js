@@ -121,6 +121,20 @@ const {
  *                 type: string
  *                 example: Tempat nongkrong nyaman dan menyediakan kopi lokal.
  *
+ *               latitude:
+ *                 type: number
+ *                 format: double
+ *                 example: -8.17156
+ *
+ *               longitude:
+ *                 type: number
+ *                 format: double
+ *                 example: 113.69261
+ *
+ *               alamat:
+ *                 type: string
+ *                 example: Belakang Mall Matahari Pasar Tanjung
+ *
  *               image_url:
  *                 type: string
  *                 format: binary
@@ -135,6 +149,7 @@ const {
  *       200:
  *         description: Informasi bisnis berhasil diperbarui
  */
+
 
 /**
  * @swagger
