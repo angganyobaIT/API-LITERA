@@ -92,7 +92,7 @@ const getUserById = async (
                     customers.name,
 
                     merchants.nama_bisnis,
-                    merchants.tahun_berdiri,
+                    merchants.usaha_didirikan,
                     merchants.deskripsi
 
                 FROM users
